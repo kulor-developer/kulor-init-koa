@@ -1,0 +1,79 @@
+css-dev:
+  expand: true
+  filter: isFile
+  cwd   : <%= src %>
+  src   : '**/*.css'
+  dest  : <%= dev %>
+
+fonts-dev:
+  expand: true
+  filter: isFile
+  cwd: <%= src %>/fonts
+  src: '*'
+  dest: <%= dev %>/fonts
+
+images-dev:
+  expand: true
+  filter: isFile
+  cwd: <%= src %>
+  src:
+    - '**/*.jpg'
+    - '**/*.jpeg'
+    - '**/*.png'
+    - '**/*.bmp'
+  dest: <%= dev %>
+
+lib-dev:
+  expand: true
+  filter: isFile
+  cwd: <%= src %>/js/lib
+  src: '**.*'
+  dest: <%= dev %>/js/lib
+
+lib-temp:
+  expand: true
+  filter: isFile
+  cwd: <%= dev %>/js/lib
+  src:
+    - jquery*.js
+  dest: <%= temp %>/js/lib
+
+lib-dist:
+  expand: true
+  filter: isFile
+  cwd: <%= dev %>/js/lib
+  src:
+    - html5.js
+    - jquery*.js
+    - sea*.js
+    - '*.map'
+  dest: <%= dist %>/js/lib
+
+js-dev:
+  expand: true
+  filter: isFile
+  cwd: <%= src %>/js
+  src: '**/*.js'
+  dest: <%= dev %>/js
+
+html-dev:
+  expand: true
+  filter: isFile
+  cwd: <%= src %>
+  src: '**/*.html'
+  dest: <%= dev %>
+
+js-dev-sub:
+  expand  : true
+  flatten : true
+  filter  : isFile
+  cwd     : <%= src %>/plugin/
+  src     : "**/*.js"
+  dest    : <%= dev %>/js/plugin
+
+manifest  :
+  expand  : true
+  filter  : isFile
+  cwd     : <%= src %>/
+  src     : "*.json"
+  dest    : <%= dev %>/

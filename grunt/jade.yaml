@@ -1,0 +1,20 @@
+publish:
+    expand  : true
+    cwd     : <%= src %>
+    src     : '*.jade'
+    dest    : <%= dev%>
+    ext     : '.html'
+
+dev :
+    expand  : true
+    cwd     : <%= src %>
+    src     : '**/*.jade'
+    dest    : <%= dev%>
+    ext     : '.html'
+
+mock :
+    expand  : true
+    cwd     : <%= temp %>
+    src     : '**/*.jade'
+    dest    : <%= dev%>
+    ext     : '.html'

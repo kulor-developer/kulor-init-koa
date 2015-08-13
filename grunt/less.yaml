@@ -1,0 +1,20 @@
+options:
+    paths:
+        - _base
+        - _partial
+        - _element
+
+files:
+    expand  : true
+    cwd     : <%= src%>/less
+    src     : '*.less'
+    dest    : <%= dev%>/css
+    ext     : '.css'
+
+plugin:
+    expand  : true
+    flatten : true
+    cwd     : <%= src%>/plugin/
+    src     : "**/*.less"
+    dest    : <%= dev%>/css/plugin
+    ext     : ".css"

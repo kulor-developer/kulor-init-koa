@@ -1,0 +1,46 @@
+copy-dev:
+  - copy:fonts-dev
+  - copy:images-dev
+  - copy:js-dev
+  - copy:lib-dev
+  - copy:css-dev
+  - copy:html-dev
+  - copy:js-dev-sub
+  - copy:manifest
+
+copy-temp:
+  - copy:lib-temp
+
+copy-dist:
+  - copy:fonts-dist
+  - copy:images-dist
+  - copy:lib-dist
+  - copy:html-dist
+
+mock:
+  - clean:dev
+  - less
+  - copy-dev
+  - string-replace:mockjs
+  # - jade:mock
+  - concat:global
+  - concat:mock
+  - listcsslink
+
+# 构建开发版本
+dev:
+  - clean:dev
+  - less
+  # - jade:dev
+  - copy-dev
+  - concat:global
+  - listcsslink
+
+# 打开发布版服务器
+online:
+  - dev
+  - replace:product
+
+default:
+  - mock
+  - watch

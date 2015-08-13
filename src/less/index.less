@@ -1,0 +1,119 @@
+@import "function";
+
+.index-container {
+    overflow        : auto; 
+    padding-bottom  : .5rem; 
+    background      : @bg-color-white; 
+    .index-address-choose-btn {
+        line-height     : 2.5rem; 
+        border-radius   : .2rem; 
+        background      : #00a2ed;
+        color           : #fff; 
+        text-align      : center; 
+        margin          : 5% 2%;
+        margin-bottom   : 2.5rem; 
+        b {
+            width       : 1rem;
+            height      : .5rem;  
+            display     : inline-block;
+            vertical-align  : middle; 
+            .bg-img( "../images/arrow-white.png" , .5rem , .2rem 0 );
+        }
+    }
+
+    .index-interview-middle {
+        text-align      : center;  
+        margin-bottom   : 2rem; 
+        .index-interview-middle-bg {
+            height      : 2rem; 
+            margin      : 1%; 
+            .bg-img( "../images/index-interview-1.png" , 100% , 0 0 );    
+        }
+        .index-interview-middle-item {
+            width           : 33%; 
+            display         : inline-block; 
+            &.index-interview-middle-item-dz {
+                h5 {
+                    color       : #069fff;
+                }
+            }
+            &.index-interview-middle-item-bz {
+                h5 {
+                    color       : #3cdf75;
+                }
+            }
+            h5 {
+                color           : #ffcb00; 
+                margin-bottom   : .3rem;
+            }
+            p {
+                font-size   : .6rem;
+                text-align  : center; 
+                color       : #666; 
+            }
+        }
+    }
+
+    h5.index-interview-title {
+        height      : .8rem; 
+        line-height : .8rem; 
+        margin      : 0 2%;
+        margin-bottom   : .5rem; 
+        b {
+            width           : .2rem; 
+            height          : 100%; 
+            margin-right    : .2rem; 
+            display         : inline-block; 
+            background      : #00b6ff;  
+            border-radius   : 3px; 
+            &::before {
+                content     : ".";
+                color       : #00b6ff;
+                width       : 0; 
+                height      : 100%;
+                font-size   : .1rem; 
+                overflow    : hidden;
+            }
+        } 
+    }
+    .index-interview-middle-bottom {
+        img {
+            width       : 100%; 
+        }
+    }
+}
+
+header.top {
+    width                   : 100%;
+    padding-top             : 1rem; 
+    overflow                : hidden;
+    img {
+        width               : 100%;
+        float               : left;
+        position            : relative;
+    }
+}
+
+ul.index-list {
+    width               : 100%;
+    li{
+        width           : 50%;
+        height          : 3rem; 
+        line-height     : 3rem;
+        font-size       : .8rem; 
+        display         : inline-block;
+        text-align      : center;
+        span {
+            width           : 1.2rem;
+            height          : 1.2rem;
+            line-height     : 1.2rem; 
+            font-size       : .8rem; 
+            color           : #fff; 
+            margin-right    : .5rem; 
+            vertical-align  : middle; 
+            border-radius   : 50%;   
+            background      : #00b6ff;
+            display         : inline-block; 
+        }
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "name": "sz-web-server",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "dependencies": {
+        "co-fs"         : "^1.2.0",
+        "koa"           : "^0.20.0",
+        "underscore"    : "^1.8.3",
+        "jade"          : "^1.9.2",
+        "url"           : "^0.10.3",
+        "koa-body"      : "^1.2.1" ,
+        "koa-onerror"   : "^1.2.1" ,
+        "koa-redis"     : "^1.0.0" ,
+        "koa-generic-session"       : "^1.9.0" ,
+        "koa-mobile-resolution"     : "^0.0.1" 
+    },
+    "devDependencies": {},
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "sz"
+    ],
+    "author": "bo.cheng"
+}
