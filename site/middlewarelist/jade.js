@@ -50,6 +50,11 @@ Jade    = Base.extend( function( opt , app ) {
         }
         return this.httpCache[ templateName ] || false;
     } ,
+    getResolution   : function(){
+        var _rln    = this.koa.req.client.mResolution;
+        _rln.pageScale  = 1 / _rln.dpr;
+        return _rln;
+    } ,
     /*!
      *  组装一个json到jade模板中
      *  @json           {json}      json数据
@@ -63,7 +68,7 @@ Jade    = Base.extend( function( opt , app ) {
             json            = {};
         }
         _jadeFn     = yield this.getTemplate( templateName );
-        return _jadeFn ? _jadeFn( json ) : "";
+        return _jadeFn ? _jadeFn( _.extend( this.getResolution() , json ) ) : "";
     }
 } );
 
