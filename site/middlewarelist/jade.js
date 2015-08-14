@@ -3,6 +3,7 @@ var jade        = require( "jade" ),
     cofs        = require( "co-fs" ) ,
     _           = require( "underscore" ) ,
     path        = require( "path" ) ,
+    mResolution = require( "koa-mobile-resolution" ) ,
     Jade;
 
 Jade    = Base.extend( function( opt , app ) {
@@ -18,7 +19,7 @@ Jade    = Base.extend( function( opt , app ) {
             /*!
              *  提供屏幕分辨率相关的中间件
              */
-            app.use( mResolution() );
+            this.koaApp.use( mResolution() );
         }
     } ,
     /*!
@@ -66,8 +67,8 @@ Jade    = Base.extend( function( opt , app ) {
     }
 } );
 
-module.exports  = function( opt ){
-    var _jade   = new Jade( opt );
+module.exports  = function( opt , app ){
+    var _jade   = new Jade( opt , app );
     return function *( next ){
         this.jade    = _jade;
         this.jade.koa= this;
