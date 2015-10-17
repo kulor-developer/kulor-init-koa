@@ -7,6 +7,7 @@ copy-dev:
   - copy:html-dev
   - copy:js-dev-sub
   - copy:manifest
+  - copy:fav-icon-dev 
 
 copy-temp:
   - copy:lib-temp
@@ -14,8 +15,9 @@ copy-temp:
 copy-dist:
   - copy:fonts-dist
   - copy:images-dist
-  - copy:lib-dist
+  - copy:lib-dista
   - copy:html-dist
+  - copy:fav-icon-dist
 
 mock:
   - clean:dev
@@ -39,7 +41,9 @@ dev:
 # 打开发布版服务器
 online:
   - dev
+  # - copy-dist
   - replace:product
+  - jadereplace:product
 
 default:
   - mock

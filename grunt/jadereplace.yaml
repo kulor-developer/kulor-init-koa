@@ -1,0 +1,7 @@
+product     :
+    src         : <%= src %>/
+    dest        : <%= dist %>/
+    tempSrc     : <%= dev %>
+    ignoreSource: <%= ignoreSource %>
+    isIeHacker  : true
+    redirectOrigin    : <%= redirect %>/

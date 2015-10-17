@@ -1,7 +1,7 @@
 {
     "name"          : "kulor",
     "description"   : "kulor web framework",
-    "version" : "0.1.2",
+    "version" : "0.1.3",
     "homepage": "http://nihaox1.github.io/kulor-doc/",
     "author"  : {
         "name"    : "bo.cheng",
@@ -27,6 +27,7 @@
         "grunt-contrib-watch"   : "^0.6.1",
         "nodeunit"              : "^0.9.1" ,
         "grunt-creplace"        : "^0.1.1",
+        "grunt-jade-creplace"   : "^0.0.3",
         "grunt-listcsslink"     : "^0.1.0",
         "load-grunt-config"     : "^0.12.0",
         "grunt-string-replace"  : "^1.0.0",

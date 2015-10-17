@@ -9,6 +9,8 @@ module.exports  = function( bower , grunt , tool , log , callback ) {
             tool.file.copy( path.resolve( __dirname , "grunt" ) , path.resolve( self.cwd ) );
             tool.file.copy( path.resolve( __dirname , "site" ) , path.resolve( self.cwd ) );
             tool.file.copy( path.resolve( __dirname , "src" ) , path.resolve( self.cwd ) );
+            tool.file.copy( path.resolve( __dirname , "Gruntfile.js" ) , path.resolve( self.cwd ) );
+            tool.file.copy( path.resolve( __dirname , "package.json" ) , path.resolve( self.cwd ) );
             log( "kulor-koa-app init success" );
             callback();
         } );
