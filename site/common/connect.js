@@ -1,6 +1,9 @@
 var Base        = require( "./base" ) ,
     http        = require( "http" ) ,
     https       = require( "https" ) ,
+    _           = require( "underscore" ) ,
+    Url         = require( "url" ) ,
+    QueryString = require( "querystring" ) ,
     Connect;
 
 Connect     = Base.extend( function( koa ){
@@ -16,7 +19,7 @@ Connect     = Base.extend( function( koa ){
     }
 } , {
     keepCookieToServer : function( res ){
-        if( res.headers[ "set-cookie" ] && res.headers[ "set-cookie" ][ 0 ] ){
+        if( this.koa.session && res.headers[ "set-cookie" ] && res.headers[ "set-cookie" ][ 0 ] ){
             if( !this.koa.session.serverCookie ){
                 this.koa.session.serverCookie     = res.headers[ "set-cookie" ][ 0 ];
             } else if( this.koa.session.serverCookie !== res.headers[ "set-cookie" ][ 0 ] ){
@@ -29,48 +32,82 @@ Connect     = Base.extend( function( koa ){
      *  @url        {string}    
      *  @type       {string}        POST | GET
      */
-    getConnectOpts  : function( url , type ){
-        return {
-            hostname    : this.koa.cache.packageJSON.serverIp,
-            port        : this.koa.cache.packageJSON.serverPort,
-            path        : url,
+    getConnectOpts  : function( url , type , opt ){
+        if( typeof opt !== "object" ){
+            opt         = {}
+        }
+        opt     = {
+            hostname    : opt.host || this.koa.cache.packageJSON.serverIp,
+            port        : opt.port || this.koa.cache.packageJSON.serverPort,
+            path        : opt.path || url,
             method      : type || "GET",
-            headers: {
+            headers     : _.extend( {
                 "Content-Type"  : "application/x-www-form-urlencoded" ,
                 "Cookie"        : this.koa.session && this.koa.session.serverCookie ? this.koa.session.serverCookie : ""
-            }
+            } , opt.headers || {} )
         };
+        return opt;
     } ,
-    post    : function ( url , postData ){
+    /*!
+     *  解析hostUrl 到opt header里
+     *  @url        {string}    url字符串
+     *  @opt        {object}    http->header信息
+     *  return      {object}
+     */
+    getHostOpt      : function( url , opt ){
+        var _url    = Url.parse( url );
+        return _.extend( {
+                host    : _url.host ,
+                port    : _url.port || 80 ,
+                path    : _url.path
+            } , opt );
+    } ,
+    post    : function ( url , postData , opt ){
         var _self       = this ,
             _cb ,
             _result ,
             _called ,
-            _dataStr    = "data=" + JSON.stringify( postData ) ,
+            _dataStr    = QueryString.stringify( postData ) ,
             _done   = function(){
                 if( !_called && _result !== undefined && _cb ){
                     _cb.call( this , null , JSON.parse( _result ) );
                     _called = true;
                 }
             } ,
-            _req;
-        _req = http.request( _self.getConnectOpts( url , "POST" ) , function( res ){
+            _error  = function( e ){
+                clearTimeout( _abort );
+                _self.log( e.massage || e );
+                _result     = JSON.stringify( { error : -9 } );
+                _done();
+            } ,
+            _req ,
+            _abort;
+        if( /^https?:/.test( url ) ){
+            opt     = this.getHostOpt( url , opt );
+        }
+        this.koa.log.log( url );
+
+        _abort      = setTimeout( function(){
+            _req.abort();
+            _error( url + " timeout" );
+        } , this.koa.cache.packageJSON.requestTimeout );
+
+        _req = http.request( _self.getConnectOpts( url , "POST" , opt ) , function( res ){
             var _data   = "";
-            _self.keepCookieToServer( res );
-            if( res.statusCode === 200 ){
-                res.on( "data" , function( chunk ){
-                    _data   += chunk;
-                } ).on( "end" , function(){
-                    _result     = String( _data );
+            clearTimeout( _abort );
+            res.on( "data" , function( chunk ){
+                _data   += chunk;
+            } ).on( "end" , function(){
+                _result     = String( _data );
+                if( res.statusCode === 200 ){
+                    _self.keepCookieToServer( res );
                     _done();
-                } );
-            }
+                } else {
+                    _error( url + " : statusCode=" + res.statusCode + "\n" + _result );
+                }
+            } );
         });
-        _req.on( "error" , function( e ){
-            _self.log( e.massage || e );
-            _result     = JSON.stringify( { error : -9 } );
-            _done();
-        } );
+        _req.on( "error" , _error );
         _req.write( _dataStr );
         _req.end();
         return function( fn ){
@@ -85,7 +122,7 @@ Connect     = Base.extend( function( koa ){
         }
         return _al.join( "&" );
     } ,
-    get     : function( url , paramData ){
+    get     : function( url , paramData , opt ){
         var _self       = this ,
             _cb ,
             _result ,
@@ -96,48 +133,46 @@ Connect     = Base.extend( function( koa ){
                     _called = true;
                 }
             } ,
-            _getData = function( res ){
-                var _data   = "";
-                if( res.statusCode === 200 ){
-                    res.on( "data" , function( chunk ){
-                        _data   += chunk;
-                    } ).on( "end" , function(){
-                        _result     = String( _data );
-                        _done();
-                    } );
-                }
-            } ,
-            _req ;
-        if( typeof paramData === "object" ){
-            url     += "?" + this.getParamData( paramData );
-        }
-        if( /^https/.test( url ) ){
-            https.get( url , function( res ){
-                _getData( res );
-            } );
-        } else if( /^http/.test( url ) ){
-            http.get( url , function( res ){
-                _getData( res );
-            } ).on( "error" , function( e ){
-                _self.log( e.massage );
-                _result     = "\{error : -9\}";
-                _done();
-            } );
-        } else {
-            if( !/^[\\|\/]/.test( url ) ){
-                url     = "/" + url;
-            }
-            _req = http.request( _self.getConnectOpts( url , "GET" ) , function( res ){
-                _self.keepCookieToServer( res );
-                _getData( res );
-            });
-            _req.on( "error" , function( e ){
+            _error  = function( e ){
+                clearTimeout( _abort );
                 _self.log( e );
                 _result     = JSON.stringify( { error : -9 } );
                 _done();
-            } );
-            _req.end();
+            } ,
+            _req ,
+            _abort;
+        if( typeof paramData === "object" && paramData !== null ){
+            url     += "?" + this.getParamData( paramData );
         }
+        if( /^https?:/.test( url ) ){
+            opt     = this.getHostOpt( url , opt );
+        } else if( !/^[\\|\/]/.test( url ) ){
+            url     = "/" + url;
+        }
+        this.koa.log.log( url );
+
+        _abort      = setTimeout( function(){
+            _req.abort();
+            _error( url + " timeout" );
+        } , this.koa.cache.packageJSON.requestTimeout );
+
+        _req = http.request( _self.getConnectOpts( url , "GET" , opt ) , function( res ){
+            var _data   = "";
+            clearTimeout( _abort );
+            res.on( "data" , function( chunk ){
+                _data   += chunk;
+            } ).on( "end" , function(){
+                _result     = String( _data );
+                if( res.statusCode === 200 ){
+                    _self.keepCookieToServer( res );
+                    _done();
+                } else {
+                    _error( url + " : statusCode=" + res.statusCode + "\n" + _result );
+                }
+            } );
+        });
+        _req.on( "error" , _error );
+        _req.end();
         return function( fn ){
             _cb     = fn;
             _done();

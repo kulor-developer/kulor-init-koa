@@ -1,7 +1,9 @@
 {
     "appName"           : "koa-app",
     /*!
-     *  是否开启debug模式
+     *  是否开启debug模式 ，
+     *  启用debug模式后 可以根据下文中的debugHost进行多开发环境切换
+     *  eg:     debug   : "default"     将启用debugHost中的defalut环境
      */
     "debug"             : true , 
     /*!
@@ -10,6 +12,11 @@
      */
     "isMobile"          : false ,
     /*!
+     *  采用集群部署时，启用worker数量
+     *  默认为与cpu数量相同的worker数量
+     */
+    "clusterForkNum"    : 2 , 
+    /*!
      *  jade模板目录名
      */
     "jadeFolderName"    : "../src/jadeFiles",
@@ -17,6 +24,10 @@
      *  日志目录
      */
     "logFolderName"     : "logs/koa/",
+    //  服务器日志前缀
+    "logPrefix"         : "zjdd",
+    //  是否开启 服务器端日志
+    "autoLog"           : true ,
     /*!
      *  存放至内存的日志条目上限   达到此数量时，会将日志写入硬盘
      */
@@ -25,6 +36,8 @@
      *  业务处理目录
      */
     "busHandlerFolder"  : "core/handler" ,
+    //  nodejs服务监听端口
+    "serverListenPort"  : 80 ,
     /*!
      *  后台内部ip地址
      */
@@ -33,6 +46,8 @@
      *  分发端口号
      */
     "serverPort"    : 8080,
+    // 内部请求超时时间，防止请求被长时间挂起，http－request默认挂起时间为2min
+    "requestTimeout"    : 1e4 ,
     /*！
      *  session过去时间
      */
@@ -50,5 +65,15 @@
         "host"    : "127.0.0.1" ,
         "port"    : "6379" ,
         "pass"    : "123456"
+    } ,
+    /*!
+     *  对应debug字段，方便多环境切换开发
+     */
+    "debugHost"         : {
+        "default"       : {
+            "serverIp"      : "test.xxx.com" ,
+            "serverPort"    : 80 ,
+            "requestTimeout": 1e4
+        }
     }
 }

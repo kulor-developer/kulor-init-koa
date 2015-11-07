@@ -47,7 +47,7 @@ Logger = Base.extend( function( packageJSON ){
      *  保存日志到硬盘中
      */
     saveToFile          : function(){
-        var _logFileName    = path.join( this.logFileFolder , ( "sz-" + new Date().toLocaleDateString().replace( /[\\|\/]/g , "-" ) + ".txt" ) ),
+        var _logFileName    = path.join( this.logFileFolder , ( this.packageJSON.logPrefix + new Date().toLocaleDateString().replace( /[\\|\/]/g , "-" ) + ".txt" ) ),
             _logCache       = this.logStr.join( "\r\n" ) + "\r\n";
         this.checkIsFileExists( _logFileName , function( err , _isFileExists ){
             if( !err ){
@@ -72,7 +72,19 @@ Logger = Base.extend( function( packageJSON ){
 module.exports  = function( opt ){
     var _log    = new Logger( opt );
     return function*( next ){
+        var _date;
         this.log    = _log;
-        yield next;
+        if( opt.autoLog === true ){
+            _date   = new Date();
+            yield next;
+            // 纪录一些通配的url访问信息
+            _log.log( [
+                _date.toLocaleString() ,
+                "Request-url:"  + this.originalUrl ,
+                "remote-host:"  + this.req.headers[ "remote-host" ] ,
+                "user-agent:"   + this.req.headers[ "user-agent" ] ,
+                "Response-time:" + ( new Date().getTime() - _date ) + "ms"
+            ].join( ";" ) );
+        }
     }
 };
