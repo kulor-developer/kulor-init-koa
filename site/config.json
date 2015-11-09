@@ -1,0 +1,32 @@
+{
+    "appName"           : "koa-app",
+    "debug"             : true , 
+    "isMobile"          : false ,
+    "clusterForkNum"    : 2 , 
+    "jadeFolderName"    : "../src",
+    "logFolderName"     : "../logs",
+    "logPrefix"         : "xxxx",
+    "autoLog"           : true ,
+    "tmpLogCount"       : 1 ,
+    "busHandlerFolder"  : "handler" ,
+    "serverListenPort"  : 16001 ,
+    "serverIp"          : "127.0.0.1" ,
+    "serverPort"        : 8080,
+    "requestTimeout"    : 1e4 ,
+    "sessionMaxAge"     : 0 ,
+    "busHandlers"       : {
+        "index"         : "index"
+    } ,
+    "redis"             : {
+        "host"    : "127.0.0.1" ,
+        "port"    : "6379" ,
+        "pass"    : "123456"
+    } ,
+    "debugHost"         : {
+        "default"       : {
+            "serverIp"      : "test.xxx.com" ,
+            "serverPort"    : 80 ,
+            "requestTimeout": 1e4
+        }
+    }
+}
