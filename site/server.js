@@ -5,7 +5,6 @@ var koa                 = require( "koa" ),
     session             = require( "koa-generic-session" ) ,
     koaRedis            = require( "koa-redis" ) ,
     koaBody             = require( "koa-body" ) ,
-    koaError            = require( "koa-onerror" ) ,
     log                 = require( "./middlewarelist/log" ) ,
     jade                = require( "./middlewarelist/jade" ),
     cache               = require( "./middlewarelist/cache" ),
@@ -19,13 +18,11 @@ module.exports = function( port ){
     app.keys     = [ "user app is a secret" ];
 
     // 方便多开发环境进行切换
-    if( packageJSON.debug ){
+    if( packageJSON.debug && typeof packageJSON.debugHost === "object" && packageJSON.debugHost[ packageJSON.debug ] ){
         packageJSON     = _.extend( packageJSON , packageJSON.debugHost[ packageJSON.debug ] );
     }
 
     app.use( log( packageJSON ) );
-
-    koaError( app );
 
     app.use( require( "./middlewarelist/redis" )( packageJSON.redis ) );
 

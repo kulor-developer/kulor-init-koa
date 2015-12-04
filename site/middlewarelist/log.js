@@ -85,6 +85,8 @@ module.exports  = function( opt ){
                 "user-agent:"   + this.req.headers[ "user-agent" ] ,
                 "Response-time:" + ( new Date().getTime() - _date ) + "ms"
             ].join( ";" ) );
+        } else {
+            yield next;
         }
     }
 };
