@@ -1,5 +1,5 @@
 doctype html
-html(data-dpr="#{dpr}",style="font-size:#{fontSize}px")
+html
     head
         title 
             block base-title
@@ -8,7 +8,7 @@ html(data-dpr="#{dpr}",style="font-size:#{fontSize}px")
         meta( content="yes" , name="apple-touch-fullscreen")
         meta( content="telephone=no,email=no" , name="format-detection")
         meta( content="fullscreen=yes,preventMove=no" , name="ML-Config" )
-        meta( name="viewport" , content="width=device-width, initial-scale=#{pageScale}, maximum-scale=#{pageScale}, minimum-scale=#{pageScale}, user-scalable=no" )
+        meta( name="viewport" , content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" )
         link( type = "text/css" , rel = "stylesheet" , href = "css/global.css" )
         script( type="text/javascript" , src = "js/global.js" )
         block base-head
