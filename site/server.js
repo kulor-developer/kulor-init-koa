@@ -99,9 +99,9 @@ module.exports = function( port ){
             }   
         } catch( e ){
             if( packageJSON.debug ){
-                _self.log.log( e );
+                _self.body  = e.message;
             }
-            _self.status             = 500;
+            _self.status    = 500;
         }
         yield next;
     } );

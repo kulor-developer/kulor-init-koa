@@ -41,10 +41,7 @@ Connect     = Base.extend( function( koa ){
             port        : opt.port || this.koa.cache.packageJSON.serverPort,
             path        : opt.path || url,
             method      : type || "GET",
-            headers     : _.extend( {
-                "Content-Type"  : "application/x-www-form-urlencoded" ,
-                "Cookie"        : this.koa.session && this.koa.session.serverCookie ? this.koa.session.serverCookie : ""
-            } , opt.headers || {} )
+            headers     : _.extend( this.koa.accept.headers , opt.headers || {} )
         };
         return opt;
     } ,
@@ -70,7 +67,11 @@ Connect     = Base.extend( function( koa ){
             _dataStr    = QueryString.stringify( postData ) ,
             _done   = function(){
                 if( !_called && _result !== undefined && _cb ){
-                    _cb.call( this , null , JSON.parse( _result ) );
+                    try {
+                        _cb.call( this , null , JSON.parse( _result ) );
+                    } catch( e ) {
+                        _cb.call( this , null , _result );
+                    }
                     _called = true;
                 }
             } ,
@@ -129,7 +130,11 @@ Connect     = Base.extend( function( koa ){
             _called ,
             _done   = function(){
                 if( !_called && _result !== undefined && _cb ){
-                    _cb.call( this , null , ( _result ? JSON.parse( _result ) : _result ) );
+                    try {
+                        _cb.call( this , null , JSON.parse( _result ) );
+                    } catch( e ) {
+                        _cb.call( this , null , _result );
+                    }
                     _called = true;
                 }
             } ,
