@@ -37,11 +37,13 @@ Connect     = Base.extend( function( koa ){
             opt         = {}
         }
         opt     = {
-            hostname    : opt.host || this.koa.cache.packageJSON.serverIp,
-            port        : opt.port || this.koa.cache.packageJSON.serverPort,
-            path        : opt.path || url,
-            method      : type || "GET",
-            headers     : _.extend( this.koa.accept.headers , opt.headers || {} )
+            hostname    : opt.host || this.koa.cache.packageJSON.serverIp ,
+            port        : opt.port || this.koa.cache.packageJSON.serverPort ,
+            path        : opt.path || url ,
+            method      : type || "GET" ,
+            headers     : _.extend( this.koa.accept.headers , {
+                    "Content-Type"  : "application/x-www-form-urlencoded"
+                } , opt.headers || {} )
         };
         return opt;
     } ,
@@ -54,7 +56,7 @@ Connect     = Base.extend( function( koa ){
     getHostOpt      : function( url , opt ){
         var _url    = Url.parse( url );
         return _.extend( {
-                host    : _url.host ,
+                host    : _url.hostname ,
                 port    : _url.port || 80 ,
                 path    : _url.path
             } , opt );
