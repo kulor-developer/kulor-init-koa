@@ -2,6 +2,7 @@ var koa                 = require( "koa" ),
     _                   = require( "underscore" ),
     cofs                = require( "co-fs" ) ,
     Url                 = require( "url" ) ,
+    Path                = require( "path" ),
     session             = require( "koa-generic-session" ) ,
     koaRedis            = require( "koa-redis" ) ,
     koaBody             = require( "koa-body" ) ,
@@ -14,8 +15,9 @@ var koa                 = require( "koa" ),
 
 // @port    {number}    监听端口号
 module.exports = function( port ){
-    app          = koa();
-    app.keys     = [ "user app is a secret" ];
+    app         = koa();
+    app.keys    = [ "user app is a secret" ];
+    app.proxy   = true;
 
     // 方便多开发环境进行切换
     if( packageJSON.debug && typeof packageJSON.debugHost === "object" && packageJSON.debugHost[ packageJSON.debug ] ){
@@ -23,6 +25,23 @@ module.exports = function( port ){
     }
 
     app.use( log( packageJSON ) );
+
+    /*!
+     *  初始化相关的配置信息
+     *  对启动文件做相对应的路径处理
+     */
+    ( function( args ){
+        var _cwd;
+        for( var i = args.length; i--; ){
+            if( /setup\.js$/.test( args[ i ] ) ){
+                _cwd    = Path.resolve( args[ i ] , "../" );
+                break;
+            }
+        }
+        packageJSON.jadeFolderName  = Path.join( _cwd , packageJSON.jadeFolderName );
+        packageJSON.logFolderName   = Path.resolve( _cwd , packageJSON.logFolderName );
+        packageJSON.busHandlerFolder= Path.resolve( _cwd , packageJSON.busHandlerFolder );
+    } )( process.argv );
 
     app.use( require( "./middlewarelist/redis" )( packageJSON.redis ) );
 
@@ -55,14 +74,6 @@ module.exports = function( port ){
     app.use( cache( packageJSON ) );
 
     /*!
-     *  初始化相关的配置信息
-     */
-    ( function(){
-        var _cwd    = process.cwd() + "/";
-        packageJSON.busHandlerFolder    = _cwd + packageJSON.busHandlerFolder + "/";
-    } )();
-
-    /*!
      *  处理对应的具体业务
      *  优先配置config.json中的busHandler中的文件匹配项
      *  如果未找到对应busHandler中的业务匹配  
@@ -77,16 +88,18 @@ module.exports = function( port ){
             _requireClass ,
             _isFileExists;
         //  获取具体对应的业务 并实例化执行，对于已实例化的业务 直接进行业务处理
-        if( !_handlersCache[ _handler ] ){
+        if( !_handlersCache[ _handler ] || packageJSON.debug ){
             if( packageJSON.busHandlers[ _handler ] ){
                 _handlerFilePath    = packageJSON.busHandlerFolder + packageJSON.busHandlers[ _handler ];
             } else {
-                _isFileExists   = yield cofs.exists( packageJSON.busHandlerFolder + _handler + ".js" );
-                if( _isFileExists ){
-                    _handlerFilePath    = packageJSON.busHandlerFolder + _handler;
-                } else {
+                _handlerFilePath    = Path.join( packageJSON.busHandlerFolder , _handler + ".js" )
+                _isFileExists       = yield cofs.exists( _handlerFilePath );
+                if( !_isFileExists ){
                     return this.status  = 404;    
                 }
+            }
+            if( packageJSON.debug ) {
+                delete require.cache[ _handlerFilePath ];
             }
             _requireClass               = require( _handlerFilePath );
             _handlersCache[ _handler ]   = new _requireClass( this );
@@ -101,7 +114,7 @@ module.exports = function( port ){
             if( packageJSON.debug ){
                 _self.body  = e.message;
             }
-            _self.status    = 500;
+            _self.status             = 500;
         }
         yield next;
     } );
