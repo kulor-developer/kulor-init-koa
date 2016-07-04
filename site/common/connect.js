@@ -88,6 +88,9 @@ Connect     = Base.extend( function( koa ){
         if( /^https?:/.test( url ) ){
             opt     = this.getHostOpt( url , opt );
         }
+        opt     = opt || {};
+        opt.headers     = opt.headers || {};
+        opt.headers[ "Content-Length" ]     = _dataStr.length;
         this.koa.log.log( url );
 
         _abort      = setTimeout( function(){
