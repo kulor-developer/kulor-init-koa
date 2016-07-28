@@ -1,18 +1,27 @@
 var cluster     = require( "cluster" ) ,
     server      = require( "./server" ) ,
-    packageJSON = require( "./config.json" );
+    packageJSON = require( "./config.json" ) ,
+    totalProccess   = packageJSON.clusterForkNum || require( "os" ).cpus().length;
 
 function setupWorker(){
-    cluster.fork().on( "exit" , function(){
-        console.log( "exit" );
-    } );
+    var i = 0;
+    for( var w in cluster.worker ){
+        i++;
+    }
+    if( i < totalProccess ){
+        cluster.fork().on( "exit" , function(){
+            this.kill();
+            this.destroy();
+            setupWorker();
+        } );
+    }
 }
 
 if( cluster.isMaster ){
     if( packageJSON.debug ){
         setupWorker();
     } else {
-        for( var i = packageJSON.clusterForkNum || require( "os" ).cpus().length; i--; ){
+        for( var i = totalProccess; i--; ){
             setupWorker();
         }
     }
