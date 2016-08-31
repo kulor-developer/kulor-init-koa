@@ -19,12 +19,13 @@ Connect     = Base.extend( function( koa ){
     }
 } , {
     keepCookieToServer : function( res ){
-        if( this.koa.session && res.headers[ "set-cookie" ] && res.headers[ "set-cookie" ][ 0 ] ){
-            if( !this.koa.session.serverCookie ){
-                this.koa.session.serverCookie     = res.headers[ "set-cookie" ][ 0 ];
-            } else if( this.koa.session.serverCookie !== res.headers[ "set-cookie" ][ 0 ] ){
-                this.koa.session.serverCookie = null;
-            }   
+        var _cookie     = this.koa.cookies;
+        if( res.headers[ "set-cookie"] ) {
+            res.headers["set-cookie"].map(function (v) {
+                var _tmp = v.split("=");
+                _cookie.set(_tmp[0], _tmp[1]);
+            });
+            this.koa.accept.headers.cookie  += ";" + res.headers["set-cookie"].join( ";" );
         }
     } ,
     /*! 
