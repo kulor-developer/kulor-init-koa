@@ -1,7 +1,5 @@
 var koa                 = require( "koa" ),
     _                   = require( "underscore" ),
-    cofs                = require( "co-fs" ) ,
-    Url                 = require( "url" ) ,
     Path                = require( "path" ),
     session             = require( "koa-generic-session" ) ,
     koaRedis            = require( "koa-redis" ) ,
@@ -9,6 +7,7 @@ var koa                 = require( "koa" ),
     log                 = require( "./middlewarelist/log" ) ,
     jade                = require( "./middlewarelist/jade" ),
     cache               = require( "./middlewarelist/cache" ),
+    router              = require( "./middlewarelist/router" ),
     //  业务流程缓存 避免反复读取业务文件
     packageJSON         = require( "./config.json" ) ,
     app ;
@@ -73,51 +72,7 @@ module.exports = function( port ){
      */
     app.use( cache( packageJSON ) );
 
-    /*!
-     *  处理对应的具体业务
-     *  优先配置config.json中的busHandler中的文件匹配项
-     *  如果未找到对应busHandler中的业务匹配  
-     *  将开始搜索config.json中busHandlerFolder文件夹下的文件
-     */
-    app.use( function *( next ){
-        var _url            = Url.parse( this.originalUrl ) ,
-            _handler        = _url.pathname.replace( /[\\|\/](.*)\..*/ , "$1" ),
-            _handlersCache  = this.cache.getCacheData( "handlersCache" ) ,
-            _self           = this ,
-            _handlerFilePath ,
-            _requireClass ,
-            _isFileExists;
-        //  获取具体对应的业务 并实例化执行，对于已实例化的业务 直接进行业务处理
-        if( !_handlersCache[ _handler ] || packageJSON.debug ){
-            if( packageJSON.busHandlers[ _handler ] ){
-                _handlerFilePath    = packageJSON.busHandlerFolder + packageJSON.busHandlers[ _handler ];
-            } else {
-                _handlerFilePath    = Path.join( packageJSON.busHandlerFolder , _handler + ".js" )
-                _isFileExists       = yield cofs.exists( _handlerFilePath );
-                if( !_isFileExists ){
-                    return this.status  = 404;    
-                }
-            }
-            if( packageJSON.debug ) {
-                delete require.cache[ _handlerFilePath ];
-            }
-            _requireClass               = require( _handlerFilePath );
-            _handlersCache[ _handler ]   = new _requireClass( this );
-        }
-        try {
-            _self.body   = yield _handlersCache[ _handler ].setKoa( this ).doJob( koa );
-            if( _self.body === undefined ){ 
-                _self.redirect( "/" );
-                _self.body   = "";
-            }   
-        } catch( e ){
-            if( packageJSON.debug ){
-                _self.body  = e.message;
-            }
-            _self.status             = 500;
-        }
-        yield next;
-    } );
+    app.use( router( packageJSON ) );
 
     app.listen( port );
 

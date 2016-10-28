@@ -18,14 +18,8 @@ HandlerBase     = Base.extend( function(){
         this.jade               = koa.jade;
         return this;
     } ,
-    /*!
-     *  验证用户登录
-     */
-    hasLogin    : function(){
-        if( this.needLogin && !this.koa.session.user ){
-            return false;
-        }
-        return true;
+    doJob   : function *(){
+        return yield this[ "do" + this.koa.request.method ]();
     }
 } );
 

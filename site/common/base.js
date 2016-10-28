@@ -34,7 +34,7 @@ module.exports  = {
             _extend,
             _implements = opts.implements ,
             _do     = function(){
-                constructor.apply( this , arguments );
+                constructor.apply( this , Array.prototype.slice.call( arguments ) );
                 if ( _implements instanceof Array ) {
                     for( var i = 0 , len = _implements.length; i < len; i++ ){
                         _implements[ i ].constructor.call( this );
@@ -47,15 +47,16 @@ module.exports  = {
             if( opts.extend && typeof opts.extend == "function" ){
                 _extend = opts.extend;
                 Base = function(){
-                    _extend.apply( this , arguments );
-                    _do.apply( this , arguments );
+                    var _args   = Array.prototype.slice.call( arguments );
+                    _extend.prototype.constructor.apply( this , _args );
+                    _do.apply( this , _args );
                 }
                 Base.prototype = Object.prototype.__proto__ ? { __proto__ : _extend.__proto__ } :
                     _.isFunction( _extend ) ? new _extend() : _extend;
                 delete opts.extend;
             } else {
                 Base = function(){
-                    _do.apply( this , arguments );
+                    _do.apply( this , Array.prototype.slice.call( arguments ) );
                 }
             }
             Base.prototype.constructor = constructor;

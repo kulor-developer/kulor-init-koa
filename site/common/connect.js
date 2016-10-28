@@ -6,14 +6,13 @@ var Base        = require( "./base" ) ,
     QueryString = require( "querystring" ) ,
     Connect;
 
-Connect     = Base.extend( function( koa ){
-    if( koa ){
-        this.koa        = koa;
+Connect     = Base.extend( function( opt ){
+    if( opt ){
         this.preHttpStr = [ 
                         "http://" ,
-                        koa.cache.packageJSON.serverIp ,
+                        opt.serverIp ,
                         ":" ,
-                        koa.cache.packageJSON.serverPort ,
+                        opt.serverPort ,
                         "/"
                         ].join( "" );
     }
