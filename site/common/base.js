@@ -59,7 +59,7 @@ module.exports  = {
                     _do.apply( this , Array.prototype.slice.call( arguments ) );
                 }
             }
-            Base.prototype.constructor = constructor;
+            Base.prototype.constructor = Base;
             tool.setImplements( Base , opts );
             tool.setSingleImplements( Base , opts );
             opts = null;
