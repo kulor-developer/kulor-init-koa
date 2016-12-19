@@ -9,12 +9,33 @@ Router = Base.extend( function( opt ) {
     this.handlersCache = {};
     this.packageJSON = opt;
     this.busHandlers = opt.busHandlers || {};
+    this.busHandlersForRegExp   = {};
+    this.initBusHandlersForRegExp();
 } , {
+    commonBusHandlerRegExp  : ".*" ,
+    // 支持使用包含 .* 的基本正则匹配
+    initBusHandlersForRegExp    : function(){
+        for( var a in this.busHandlers ){
+            if( a.indexOf( this.commonBusHandlerRegExp ) > -1 ){
+                this.busHandlersForRegExp[ a.replace( this.commonBusHandlerRegExp , "" ) ]  = this.busHandlers[ a ];
+                delete this.busHandlers[ a ];
+            }
+        }
+        return this;
+    } ,
+    getRegExpBusHandler     : function( handlerName ){
+        for( var a in this.busHandlersForRegExp ){
+            if( handlerName.indexOf( a ) === 0 ){
+                return this.busHandlersForRegExp[ a ];
+            }
+        }
+        return 404;
+    } ,
     deleteRequireCache : function( filePath ) {
         delete require.cache[ filePath ];
         delete require.cache[ filePath + ".js" ];
     } ,
-    getRequireClass    : function*( handlerName ) {
+    getRequireClass    : function*( handlerName , koa ) {
         var _handlerFilePath ,
             _handlerFolder ,
             _isFileExists ,
@@ -23,6 +44,8 @@ Router = Base.extend( function( opt ) {
             _handlerFolder = this.packageJSON.busHandlerFolder;
             if( this.busHandlers[ handlerName ] ) {
                 handlerName = this.busHandlers[ handlerName ];
+            } else {
+                handlerName = this.getRegExpBusHandler( handlerName );
             }
             _handlerFilePath = Path.join( _handlerFolder , handlerName + ".js" );
             _isFileExists = yield cofs.exists( _handlerFilePath );
@@ -34,7 +57,7 @@ Router = Base.extend( function( opt ) {
             this.deleteRequireCache( this.handlersCache[ handlerName ] );
         }
         _requireClass = require( this.handlersCache[ handlerName ] );
-        return new _requireClass( this.packageJSON );
+        return new _requireClass( koa , this.packageJSON );
     }
 } );
 
@@ -50,7 +73,8 @@ module.exports = function( opt ) {
         var _url            = Url.parse( this.originalUrl ) ,
             _handler        = _url.pathname.replace( /[\\|\/](.*)\..*/ , "$1" ) ,
             _self           = this ,
-            _requireHanlder = yield _router.getRequireClass( _handler );
+            _requireHanlder = yield _router.getRequireClass( _handler , this );
+        this.appRouter      = _router;
         if( typeof _requireHanlder === "number" ){
             this.status     = _requireHanlder;
             opt[ "do" + _requireHanlder ] && opt[ "do" + _requireHanlder ]( _self );
@@ -63,6 +87,7 @@ module.exports = function( opt ) {
                 _self.body = "";
             }
         } catch( e ) {
+            _self.logger && _self.logger.fatal( e );
             if( opt.debug ) {
                 _self.body = e.message;
             }
