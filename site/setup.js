@@ -17,14 +17,18 @@ function setupWorker(){
     }
 }
 
+function setupServer(){
+    server( packageJSON.serverListenPort || process.argv[ process.argv.length - 1 ] );
+}
+
 if( cluster.isMaster ){
     if( packageJSON.debug ){
-        setupWorker();
+        setupServer();
     } else {
         for( var i = totalProccess; i--; ){
             setupWorker();
         }
     }
 } else if( cluster.isWorker ){
-    server( packageJSON.serverListenPort || process.argv[ process.argv.length - 1 ] );
+    setupServer();
 }
