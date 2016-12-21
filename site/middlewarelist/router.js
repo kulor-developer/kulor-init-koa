@@ -29,7 +29,7 @@ Router = Base.extend( function( opt ) {
                 return this.busHandlersForRegExp[ a ];
             }
         }
-        return 404;
+        return handlerName;
     } ,
     deleteRequireCache : function( filePath ) {
         delete require.cache[ filePath ];
