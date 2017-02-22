@@ -44,12 +44,14 @@ class Connect {
         }
         return this;
     }
-    requestEventsAction( events , ...args ){
-        for( let i = 0 , len = events.length; i < len; i++ ){
+
+    requestEventsAction( events , ...args ) {
+        for( let i = 0 , len = events.length; i < len; i++ ) {
             events[ i ].apply( this , args );
         }
         return this;
     }
+
     setupHttpRequest( opt , successFn , errorFn ) {
         let _self  = this ,
             _abort = setTimeout( ()=> {
@@ -65,25 +67,25 @@ class Connect {
             delete opt.headers.host;
         }
         this.requestEventsAction( this.__requestBeforeEvents , opt );
-        _req = _http.request( opt , function( res ) {
+        _req = _http.request( opt , ( res )=> {
             let _data = [] ,
                 _size = 0;
             clearTimeout( _abort );
-            res.on( "data" , function( chunk ) {
+            res.on( "data" , ( chunk ) => {
                 _data.push( chunk );
                 _size += chunk.length;
-            } ).on( "end" , function() {
+            } ).on( "end" , ()=> {
                 let _result = Buffer.concat( _data , _size ).toString();
-                _self.requestEventsAction( _self.__requestAfterEvents , res , _result );
+                this.requestEventsAction( this.__requestAfterEvents , res , _result );
                 if( res.statusCode === 200 ) {
-                    _self.keepCookieToServer( res );
+                    this.keepCookieToServer( res );
                     successFn( _result );
                 } else {
                     errorFn( opt.path + " : statusCode=" + res.statusCode + "\n" + _result );
                 }
             } );
         } );
-        _req.on( "error" , ( e )=>{
+        _req.on( "error" , ( e )=> {
             this.requestEventsAction( this.__requestErrorEvents , e );
             errorFn( e )
         } );
@@ -95,7 +97,7 @@ class Connect {
     keepCookieToServer( res ) {
         var _cookie = this.koa.cookies;
         if( res.headers[ "set-cookie" ] ) {
-            res.headers[ "set-cookie" ].map( function( v ) {
+            res.headers[ "set-cookie" ].map( v => {
                 var _tmp = v.split( "=" );
                 _cookie.set( _tmp[ 0 ] , _tmp[ 1 ] );
             } );
@@ -146,7 +148,7 @@ class Connect {
             _cb ,
             _called ,
             _dataStr = QueryString.stringify( postData ) ,
-            _done    = function( result ) {
+            _done    = ( result )=> {
                 if( !_called && result !== undefined && _cb ) {
                     try {
                         _cb.call( this , null , JSON.parse( result ) );
@@ -185,7 +187,7 @@ class Connect {
         var _self = this ,
             _cb ,
             _called ,
-            _done = function( result ) {
+            _done = ( result )=> {
                 if( !_called && result !== undefined && _cb ) {
                     try {
                         _cb.call( this , null , JSON.parse( result ) );
