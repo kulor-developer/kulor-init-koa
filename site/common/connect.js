@@ -44,11 +44,9 @@ class Connect {
         }
         return this;
     }
-    requestEventsAction( ...args ){
-        let _events     = args[ 0 ];
-        args.shift();
-        for( let i = 0 , len = _events.length; i < len; i++ ){
-            _events[ i ].apply( this , args );
+    requestEventsAction( events , ...args ){
+        for( let i = 0 , len = events.length; i < len; i++ ){
+            events[ i ].apply( this , args );
         }
         return this;
     }
