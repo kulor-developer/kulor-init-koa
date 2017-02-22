@@ -1,18 +1,19 @@
-var Base        = require( "../common/base" ) ,
-    HandlerBase = require( "../common/handlerBase" ) ,
-    Index;
+'use strict';
 
-Index   = Base.extend( function(){
+const HandlerBase = require( "../common/handlerBase" );
 
-} , {
-    extend      : HandlerBase ,
-    handlerName : "index" ,
-    doPOST      : function *(){
-        return { name : "John" };
-    } ,
-    doGET       : function *(){
-        return yield this.jade.getHTML( "index" );
+class Index extends HandlerBase {
+    *doPOST() {
+        return JSON.stringify( { name : "John" } );
     }
-} );
 
-module.exports  = Index;
+    *doGET() {
+        let _insert  = yield this.post( "index.html" ) ,
+            _content = yield this.get( "get.html" ) ,
+            _baidu   = yield this.get( "https://www.baidu.com/" ) ,
+            _httpStr = yield this.jade.getHTML( _insert , "index" );
+        return _httpStr;
+    }
+}
+
+module.exports = Index;

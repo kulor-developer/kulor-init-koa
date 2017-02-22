@@ -20,12 +20,6 @@
      *  jade模板目录名
      */
     "jadeFolderName"    : "../src/jadeFiles",
-    /*!
-     *  日志目录
-     */
-    "logFolderName"     : "logs/koa/",
-    //  服务器日志前缀
-    "logPrefix"         : "xxxxxx",
     //  是否开启 服务器端日志
     "autoLog"           : true ,
     /*!

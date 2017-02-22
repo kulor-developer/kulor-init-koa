@@ -1,26 +1,34 @@
-var Base        = require( "./base" ) ,
-    Connect     = require( "./connect" ) ,
-    HandlerBase;
+const Connect = require( "./connect" );
 
-HandlerBase     = Base.extend( function(){
-
-} , {
-    extend      : Connect,
-    log         : function( str ){
-        this.koa.log.log( str );
-        return this;
+new Connect().setRequestEvents( {
+    beforeEvents    : function( opt ){
+        this.log( opt );
     } ,
+    afterEvents     : function( res , result ){
+        this.log( result );
+    } ,
+    errorEvents     : function( e ){
+        this.log( e );
+    }
+} , true );
+
+class HandlerBase extends Connect {
+    log( str ){
+        console.log( str );
+        return this;
+    }
     /*!
      *  为业务类赋值一些通配属性
      */
-    setKoa      : function( koa , handlerName ){
-        this.koa                = koa;
-        this.jade               = koa.jade;
+    setKoa( koa ) {
+        this.koa = koa;
+        this.jade = koa.jade;
         return this;
-    } ,
-    doJob   : function *(){
+    }
+
+    *doJob() {
         return yield this[ "do" + this.koa.request.method ]();
     }
-} );
+}
 
-module.exports  = HandlerBase;
+module.exports = HandlerBase;

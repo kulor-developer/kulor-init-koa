@@ -1,41 +1,47 @@
-var Base = require( "../common/base" ) ,
-    _    = require( "underscore" ) ,
-    cofs = require( "co-fs" ) ,
-    Url  = require( "url" ) ,
-    Path = require( "path" ) ,
-    Router;
+const _    = require( "underscore" ) ,
+      cofs = require( "co-fs" ) ,
+      Url  = require( "url" ) ,
+      Path = require( "path" );
 
-Router = Base.extend( function( opt ) {
-    this.handlersCache = {};
-    this.packageJSON = opt;
-    this.busHandlers = opt.busHandlers || {};
-    this.busHandlersForRegExp   = {};
-    this.initBusHandlersForRegExp();
-} , {
-    commonBusHandlerRegExp  : ".*" ,
+class Router {
+    constructor( opt ) {
+        this.handlersCache = {};
+        this.packageJSON = opt;
+        this.busHandlers = opt.busHandlers || {};
+        this.busHandlersForRegExp = {};
+        this.initBusHandlersForRegExp();
+    }
+
+    get commonBusHandlerRegExp() {
+        return ".*";
+    }
+
     // 支持使用包含 .* 的基本正则匹配
-    initBusHandlersForRegExp    : function(){
-        for( var a in this.busHandlers ){
-            if( a.indexOf( this.commonBusHandlerRegExp ) > -1 ){
-                this.busHandlersForRegExp[ a.replace( this.commonBusHandlerRegExp , "" ) ]  = this.busHandlers[ a ];
+    initBusHandlersForRegExp() {
+        for( var a in this.busHandlers ) {
+            if( a.indexOf( this.commonBusHandlerRegExp ) > -1 ) {
+                this.busHandlersForRegExp[ a.replace( this.commonBusHandlerRegExp , "" ) ] = this.busHandlers[ a ];
                 delete this.busHandlers[ a ];
             }
         }
         return this;
-    } ,
-    getRegExpBusHandler     : function( handlerName ){
-        for( var a in this.busHandlersForRegExp ){
-            if( handlerName.indexOf( a ) === 0 ){
+    }
+
+    getRegExpBusHandler( handlerName ) {
+        for( var a in this.busHandlersForRegExp ) {
+            if( handlerName.indexOf( a ) === 0 ) {
                 return this.busHandlersForRegExp[ a ];
             }
         }
         return handlerName;
-    } ,
-    deleteRequireCache : function( filePath ) {
+    }
+
+    deleteRequireCache( filePath ) {
         delete require.cache[ filePath ];
         delete require.cache[ filePath + ".js" ];
-    } ,
-    getRequireClass    : function*( handlerName , koa ) {
+    }
+
+    *getRequireClass( handlerName , koa ) {
         var _handlerFilePath ,
             _handlerFolder ,
             _isFileExists ,
@@ -59,7 +65,7 @@ Router = Base.extend( function( opt ) {
         _requireClass = require( this.handlersCache[ handlerName ] );
         return new _requireClass( koa , this.packageJSON );
     }
-} );
+}
 
 /*!
  *  处理对应的具体业务
@@ -74,9 +80,9 @@ module.exports = function( opt ) {
             _handler        = _url.pathname.replace( /[\\|\/](.*)\..*/ , "$1" ) ,
             _self           = this ,
             _requireHanlder = yield _router.getRequireClass( _handler , this );
-        this.appRouter      = _router;
-        if( typeof _requireHanlder === "number" ){
-            this.status     = _requireHanlder;
+        this.appRouter = _router;
+        if( typeof _requireHanlder === "number" ) {
+            this.status = _requireHanlder;
             opt[ "do" + _requireHanlder ] && opt[ "do" + _requireHanlder ]( _self );
             return;
         }
@@ -94,7 +100,7 @@ module.exports = function( opt ) {
             _self.status = 500;
             opt.do500 && opt.do500( _self );
         }
-        _requireHanlder     = null;
+        _requireHanlder = null;
         yield next;
     }
 };

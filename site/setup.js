@@ -1,11 +1,11 @@
-var cluster     = require( "cluster" ) ,
+const cluster     = require( "cluster" ) ,
     server      = require( "./server" ) ,
     packageJSON = require( "./config.json" ) ,
     totalProccess   = packageJSON.clusterForkNum || require( "os" ).cpus().length;
 
 function setupWorker(){
     var i = 0;
-    for( var w in cluster.worker ){
+    for( let w in cluster.worker ){
         i++;
     }
     if( i < totalProccess ){
