@@ -46,15 +46,18 @@ class Connect {
     }
 
     requestEventsAction( events , ...args ) {
-        for( let i = 0 , len = events.length; i < len; i++ ) {
-            events[ i ].apply( this , args );
+        try {
+            for( let i = 0 , len = events.length; i < len; i++ ) {
+                events[ i ].apply( this , args );
+            }
+        } catch( e ) {
+            throw e;
         }
         return this;
     }
 
     setupHttpRequest( opt , successFn , errorFn ) {
-        let _self  = this ,
-            _abort = setTimeout( ()=> {
+        let _abort = setTimeout( ()=> {
                 this.requestEventsAction( this.__requestErrorEvents , opt.path + " timeout" );
                 _req && _req.abort();
                 errorFn( opt.path + " timeout" );
@@ -144,8 +147,7 @@ class Connect {
     }
 
     post( url , postData , opt ) {
-        var _self    = this ,
-            _cb ,
+        var _cb ,
             _called ,
             _dataStr = QueryString.stringify( postData ) ,
             _done    = ( result )=> {
@@ -184,8 +186,7 @@ class Connect {
     }
 
     get( url , paramData , opt ) {
-        var _self = this ,
-            _cb ,
+        var _cb ,
             _called ,
             _done = ( result )=> {
                 if( !_called && result !== undefined && _cb ) {
