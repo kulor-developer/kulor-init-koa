@@ -149,7 +149,7 @@ class Connect {
     post( url , postData , opt ) {
         var _cb ,
             _called ,
-            _dataStr = QueryString.stringify( postData ) ,
+            _dataStr = postData instanceof Buffer ? postData : QueryString.stringify( postData ),
             _done    = ( result )=> {
                 if( !_called && result !== undefined && _cb ) {
                     try {
